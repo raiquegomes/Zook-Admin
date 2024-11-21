@@ -64,16 +64,17 @@ class CheckAndCalculateDailyPerformance extends Command
 
             // Obter todas as atividades agendadas para hoje
             $activities = Activity::whereHas('departments', function($query) use ($department) {
-                    $query->where('departments.id', $department->id);
-                })
-                ->where(function($query) use ($today, $dayName) {
-                    $query->where('frequency', 'daily')
-                          ->orWhere(function($query) use ($today) {
-                              $query->where('frequency', 'specific_day')
-                                    ->whereJsonContains('specific_days', $today->format('l'));
-                          });
-                })
-                ->get();
+                $query->where('departments.id', $department->id);
+            })
+            ->where('status', '!=', 0) // Ignorar atividades com status 0
+            ->where(function($query) use ($today, $dayName) {
+                $query->where('frequency', 'daily')
+                      ->orWhere(function($query) use ($today) {
+                          $query->where('frequency', 'specific_day')
+                                ->whereJsonContains('specific_days', $today->format('l'));
+                      });
+            })
+            ->get();
 
             $users = $department->members; // Obter os membros do departamento
 
@@ -82,15 +83,16 @@ class CheckAndCalculateDailyPerformance extends Command
 
                 // Verifica se a atividade não foi concluída
                 $uncompletedActivities = Activity::whereHas('departments', function($query) use ($department) {
-                        $query->where('departments.id', $department->id);
-                    })
-                    ->whereNotIn('id', function($query) use ($user, $today) {
-                        $query->select('activity_id')
-                              ->from('user_activities')
-                              ->where('user_id', $user->id)
-                              ->whereDate('assigned_date', $today);
-                    })
-                    ->pluck('id');
+                    $query->where('departments.id', $department->id);
+                })
+                ->where('status', '!=', 0) // Ignorar atividades com status 0
+                ->whereNotIn('id', function($query) use ($user, $today) {
+                    $query->select('activity_id')
+                          ->from('user_activities')
+                          ->where('user_id', $user->id)
+                          ->whereDate('assigned_date', $today);
+                })
+                ->pluck('id');
 
                 // Registrar atividades não concluídas
                 foreach ($uncompletedActivities as $activityId) {

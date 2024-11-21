@@ -16,28 +16,38 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Actions\Action;
 
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
+    protected static ?string $navigationLabel = 'Colaborador';
+    protected static ?string $navigationGroup = 'Gestão';
+
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    // Relacionamento com os tenants configurado
+    protected static ?string $tenantOwnershipRelationshipName = 'enterprises';
 
-    public static function getEloquentQuery(): Builder
-    {
-        $enterprise = Filament::getTenant();
 
-        return parent::getEloquentQuery()->whereHas('enterprise', function ($query) {
-            $query->where('id', $enterprise->id); // Supondo que o multi-tenancy utiliza o `currentTenant` para a empresa atual
-        });
-    }
+        public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+        {
+            // Filtra os usuários pelo tenant ativo automaticamente
+            return parent::getEloquentQuery();
+        }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                //
+                Forms\Components\TextInput::make('name')
+                ->required()
+                ->label('Nome'),
+
+                Forms\Components\TextInput::make('email')
+                ->required()
+                ->label('Email'),
             ]);
     }
 
@@ -47,14 +57,23 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('name')->label('Nome'),
                 TextColumn::make('email')->label('Email'),
-                TextColumn::make('enterprise.name')->label('Empresa'),
             ])
             ->filters([
-                Filter::make('Empresa')
-                    ->query(fn (Builder $query) => $query->whereHas('enterprise', fn ($q) => $q->where('id', auth()->user()->currentTenant->id))),
+
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Action::make('removeEnterprise')
+                ->label('Remover da Empresa')
+                ->action(function (User $record, array $data) {
+                    $record->removeFromEnterprise($data['enterprise_id']);
+                })
+                ->form([
+                    Forms\Components\Select::make('enterprise_id')
+                        ->label('Empresa')
+                        ->options(fn (User $record) => $record->enterprises->pluck('name', 'id'))
+                        ->required(),
+                ]),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -74,8 +93,6 @@ class UserResource extends Resource
     {
         return [
             'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }
 }

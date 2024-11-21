@@ -38,6 +38,7 @@ class ActivitiesTableWidget extends BaseWidget
         $enterprise = Filament::getTenant();
         return Activity::query()
         ->where('enterprise_id', $enterprise->id)
+        ->where('status', '!=', 0)
         ->whereHas('departments', function($query) use ($user) {
             $query->whereIn('departments.id', $user->departments()->pluck('departments.id'));
         })

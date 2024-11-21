@@ -38,4 +38,7 @@ Pode ocorre de ter mais funções dentro do projeto, entretanto, o aplicativo te
 
 ## Imagens
 
-<img src="https://i.ibb.co/tPkc8R7/Captura-de-tela-2024-11-21-105311.png" alt="Painel"> <img src="https://i.ibb.co/vQzGMGt/Captura-de-tela-2024-11-21-105318.png" alt="Minhas Atividades"> <img src="https://ibb.co/jgSJQ1R" alt="Agendamentos"> <img src="https://ibb.co/fn6f8B2" alt="Criar um Agendamento">
+<img src="https://i.ibb.co/tPkc8R7/Captura-de-tela-2024-11-21-105311.png" alt="Painel"> 
+<img src="https://i.ibb.co/vQzGMGt/Captura-de-tela-2024-11-21-105318.png" alt="Minhas Atividades"> 
+<img src="https://i.ibb.co/qkvJcP5/Captura-de-tela-2024-11-21-105340.png" alt="Agendamentos"> 
+<img src="https://i.ibb.co/NmD51Qs/Captura-de-tela-2024-11-21-105346.png" alt="Criar um Agendamento">

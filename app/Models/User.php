@@ -95,4 +95,15 @@ class User extends Authenticatable implements HasTenants, HasAvatar
     {
         return $this->enterprises()->whereKey($tenant)->exists();
     }
+
+    public function removeFromEnterprise($enterpriseId): bool
+{
+    $enterprise = $this->enterprises()->find($enterpriseId);
+
+    if (!$enterprise) {
+        return false; // Retorna false se a empresa não estiver vinculada
+    }
+
+    return $this->enterprises()->detach($enterpriseId) > 0; // Remove o vínculo e retorna true se bem-sucedido
+}
 }
