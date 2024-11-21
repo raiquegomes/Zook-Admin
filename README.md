@@ -1,66 +1,41 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+## Sobre o Zook Admin
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+O **Zook Admin** é um aplicativo focado em gerenciar rotinas e tarefas empresariais. Ele permite que empresas acompanhem médias estatísticas de desempenho, recompensem colaboradores pelo alcance de metas e reduzam significativamente os transtornos nas operações. Uma ferramenta poderosa para otimizar processos e valorizar resultados!
 
-## About Laravel
+O **Zook Admin** trabalha em Multi Tenancy, com três painel de administração "Master", "Enterprise" e "Collaborator" cada um para gestão de cada necessidade!
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+-   : Desenvolvimento de um sistema que permite aos funcionários do supermercado abrir ticket para que o Centro de Processamento de Dados (CPD) / Financeiro, realize as ações necessárias para evitar que o produto fique no estoque assim causando prejuizos a empresa.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   Cadastro de Departamentos: Realização de cadastro de atividades
+    "Nome" => Nome do Departamento
+    "Escala" => Se o departamento trabalha com escala, se sim, deixa ativo.
+    "Dia Trabalhados" => Deve marcar os dias que o departamento trabalha na semana. (Segunda-Feira a Domingo)
+    "Data de Folga" => Só e ativo se caso o departamento trabalha com "Escala" ativa.
+    "Membros" => Deve inserir os membros vinculados que aceitaram o convite da empresa que vão fazer parte deste departamento.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+-   Cadastro de Atividades/Rotinas: Realização de cadastro de atividades
+    "Titulo" => Titulo da Atividade
+    "Frequência" => A frequência que as atividades deve exibir para o usuário (Semanal, Mensal, Dia Especifico, Diária)
+    "Descrição" => Um descritivo do que deve se fazer na atividade"
+    "Regras" => As regras que o usuario deve seguir para concluir a atividade se assim necessitar
+    "N° de Ordem" => A ordem que a atividade deve exibir na listagem das atividades.
 
-## Learning Laravel
+-   Gestão de Atividades/Rotinas: Aqui você controla os agendamentos de contagem de fornecedores, essa funcionalidade foi desenvolvida para gestar de modo eficiente as contagem dos responsaveis.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+-   Cadastro de Fornecedor: Realização de cadastro de atividades
+    "Nome" => Nome do fornecedor.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+-   Agendamento de Contagem de Fornecedor: Aqui você controla os agendamentos de contagem de fornecedores, essa funcionalidade foi desenvolvida para gestar de modo eficiente as contagem dos responsaveis.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+O projeto está atualmente em uso dentro da empresa [Supermercado Pais e Filho - Eireli], ele atualmente e usado para todas as filiais da empresa e supre as operações necessitadas.
 
-## Laravel Sponsors
+Pode ocorre de ter mais funções dentro do projeto, entretanto, o aplicativo tem como função principal acompanhamento de rotinas.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### As Tecnologias
 
-### Premium Partners
+-   **[Framework Laravel 11.x](<https://vehikl.com/](https://laravel.com/docs/11.x)>)**
+-   **[Filament 3.x](<https://tighten.co](https://filamentphp.com/docs/3.x/panels/installation)>)**
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Imagens
 
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+<img src="https://ibb.co/G3BkcmK" alt="Login"> <img src="https://ibb.co/7Ry5059" alt="Registro"> <img src="https://ibb.co/7Ry5059" alt="Minhas Atividades"> <img src="https://ibb.co/jgSJQ1R" alt="Agendamentos"> <img src="https://ibb.co/fn6f8B2" alt="Criar um Agendamento">
