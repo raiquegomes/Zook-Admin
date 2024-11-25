@@ -45,13 +45,6 @@ class EnterpriseResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Toggle::make('is_active')
                     ->required(),
-                Forms\Components\BelongsToManyMultiSelect::make('members')
-                    ->relationship(
-                        name: 'members',
-                        titleAttribute: 'name',
-                        modifyQueryUsing: fn (Builder $query) => $query->whereBelongsTo(Filament::getTenant()),
-                    )
-                ->label('Departamento'),
             ]);
     }
 

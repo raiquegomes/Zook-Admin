@@ -64,6 +64,7 @@ class ActivitiesTableWidget extends BaseWidget
         return $table
             ->query($this->getTableQuery())
             ->columns([
+                TextColumn::make('order_number')->label('N°')->disabled(),
                 TextColumn::make('title')->label('Título')->disabled(),
             ])
             ->actions([

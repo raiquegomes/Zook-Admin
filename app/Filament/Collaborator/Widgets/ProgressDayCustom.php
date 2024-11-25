@@ -23,6 +23,7 @@ class ProgressDayCustom extends BaseWidget
         // Consulta para obter as atividades do dia para o usuário
         $activitiesQuery = Activity::query()
             ->where('enterprise_id', $enterprise->id)
+            ->where('status', '=', 1)
             ->whereHas('departments', function($query) use ($user) {
                 $query->whereIn('departments.id', $user->departments()->pluck('departments.id'));
             })
