@@ -54,6 +54,12 @@ class ReprocessActivityPorcent extends Widget
             return;
         }
 
+
+        // Atualiza todas as atividades "em análise" para "concluídas" da data selecionada
+        $updated = \App\Models\UserActivity::where('status', 'em_analise')
+            ->whereDate('assigned_date', $date)
+            ->update(['status' => 'concluido']);
+
         // Instancia o comando e executa a lógica
         $command = new CheckAndCalculateDailyPerformance();
         $command->handle($date);

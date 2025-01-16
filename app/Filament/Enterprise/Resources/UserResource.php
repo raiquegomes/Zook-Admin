@@ -25,7 +25,7 @@ class UserResource extends Resource
     protected static ?string $navigationLabel = 'Colaborador';
     protected static ?string $navigationGroup = 'Gestão';
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     // Relacionamento com os tenants configurado
     protected static ?string $tenantOwnershipRelationshipName = 'enterprises';

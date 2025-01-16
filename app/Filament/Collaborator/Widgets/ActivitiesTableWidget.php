@@ -8,7 +8,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Actions\Action;
-
+use Filament\Tables\Enums\ActionsPosition;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -16,7 +16,6 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\View;
-
 use Filament\Widgets\TableWidget as BaseWidget;
 
 use Illuminate\Support\Facades\Auth;
@@ -65,11 +64,15 @@ class ActivitiesTableWidget extends BaseWidget
             ->query($this->getTableQuery())
             ->columns([
                 TextColumn::make('order_number')->label('N°')->disabled(),
-                TextColumn::make('title')->label('Título')->disabled(),
+                TextColumn::make('title')
+                ->label('Título')
+                ->extraAttributes(['class' => 'break-words'])
+                ->wrap(),
             ])
             ->actions([
                 Action::make('completeActivity')
-                    ->label('Concluir Atividade')
+                    ->label('Finalizar')
+                    ->button()
                     ->icon('heroicon-s-check-circle')
                     ->modalHeading('Completar Atividade')
                     ->modalWidth('lg')
@@ -82,14 +85,13 @@ class ActivitiesTableWidget extends BaseWidget
                         // Configura os campos com base na presença de regras
                         if($hasRules == true){
                             return [
-                                TextInput::make('title')
-                                ->label('Titulo da Atividade')
-                                ->default($record->title),
+                                Placeholder::make('title')
+                                ->label('Título da Atividade')
+                                ->content(fn (Activity $record) => $record->title),
 
-                                Textarea::make('description')
+                                Placeholder::make('description')
                                 ->label('Informações sobre a atividade')
-                                ->default($record->description)
-                                ->readonly(),
+                                ->content(fn (Activity $record) => $record->description),
 
                                 CheckboxList::make('rules')
                                     ->label('Regras da Atividade')
@@ -106,12 +108,15 @@ class ActivitiesTableWidget extends BaseWidget
                                     ->label('Observação')
                                     ->hidden(fn ($get) => !$get('show_upload')),
 
-                                FileUpload::make('photos')
-                                    ->label('Upload de Imagens')
-                                    ->directory('uploads/activities')
-                                    ->panelLayout('grid')
+                                FileUpload::make('attachments')
+                                    ->directory('atividades')
+                                    ->label('Fotos do Cupom')
+                                    ->columnSpan('full')
                                     ->multiple()
-                                    ->image()
+                                    ->panelLayout('grid')
+                                    ->maxFiles(7)
+                                    ->openable()
+                                    ->visibility('public') // Garanta que os arquivos sejam acessíveis
                                     ->hidden(fn ($get) => !$get('show_upload'))
                                     ->required(fn ($get) => $get('show_upload')),
 
@@ -119,54 +124,62 @@ class ActivitiesTableWidget extends BaseWidget
                             ];
                         }else{
                             return [
-                                TextInput::make('title')
-                                ->label('Titulo da Atividade')
-                                ->default($record->title)
-                                ->readonly(),
+                                Placeholder::make('title')
+                                ->label('Título da Atividade')
+                                ->content(fn (Activity $record) => $record->title),
 
-                                Textarea::make('description')
+                                Placeholder::make('description')
                                 ->label('Informações sobre a atividade')
-                                ->default($record->description)
-                                ->rows(5)
-                                ->readonly(),
+                                ->content(fn (Activity $record) => $record->description),
 
                                 Textarea::make('observation')
                                     ->label('Observação'),
 
-                                FileUpload::make('photos')
-                                    ->label('Upload de Imagens')
-                                    ->directory('uploads/activities')
-                                    ->panelLayout('grid')
+                                FileUpload::make('attachments')
+                                    ->directory('atividades')
+                                    ->label('Fotos da Atividade')
+                                    ->columnSpan('full')
                                     ->multiple()
-                                    ->image(),
+                                    ->panelLayout('grid')
+                                    ->openable()
+                                    ->maxFiles(7)
+                                    ->visibility('public'), // Garanta que os arquivos sejam acessíveis
 
                                 View::make('components.div-alert'),
                             ];
                         }
                     })
                     ->action(function (Activity $record, array $data) {
+
+                        $status = $record->is_monitored ? 'em_analise' : 'concluido';
+
+                        $user = Auth::user();
+
+                        // Obter os departamentos do usuário
+                        $departments = $user->departments;
+
+                        // Verificar se algum departamento tem o department_master_id preenchido
+                        $departmentMasterId = $departments->firstWhere('department_master_id', '!=', null)?->department_master_id;
+
+
                         $userActivity = UserActivity::create([
                             'activity_id' => $record->id,
                             'user_id' => Auth::id(),
-                            'status' => 'concluido',
+                            'status' => $status,
                             'assigned_date' => now(),
+                            'attachments' => $data['attachments'] ?? [],
+                            'department_master_id' => $departmentMasterId,
+                            'observation' => $data['observation'] ?? null,
                         ]);
 
-                        // Verifique se os caminhos dos arquivos estão disponíveis
-                        if (isset($data['photos']) && is_array($data['photos'])) {
-                            foreach ($data['photos'] as $path) {
-                                UserActivityFile::create([
-                                    'path' => $path, // Caminho gerado automaticamente pelo FileUpload
-                                    'name' => basename($path), // Extraia o nome do arquivo do caminho
-                                    'user_activity_id' => $userActivity->id,
-                                ]);
-                            }
-                        } else {
-                            // Adicione uma mensagem de erro para o formulário
+                        // Verifica se algum arquivo foi enviado
+                        if (empty($data['attachments'])) {
                             session()->flash('error', 'Nenhum arquivo foi enviado.');
+                        } else {
+                            session()->flash('success', 'Atividade concluída com sucesso!');
                         }
                     }),
-            ])
+            ], position: ActionsPosition::BeforeColumns)
             ->heading('Minhas Atividades');
     }
 

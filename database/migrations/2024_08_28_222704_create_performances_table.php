@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->date('date');
             $table->decimal('completion_percentage', 5, 2);
+            $table->foreignId('enterprise_id')->constrained('enterprises')->nullable();
             $table->timestamps();
         });
     }

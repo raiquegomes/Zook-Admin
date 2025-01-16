@@ -16,7 +16,11 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->foreignId('activity_id')->constrained();
             $table->date('assigned_date');
+            $table->longText('observation')->nullable();
+            $table->longText('observation_reject')->nullable();
             $table->enum('status', ['concluido', 'em_analise', 'nao_aprovado', 'aprovado', 'nao_concluido'])->default('em_analise');
+            $table->array('attachments');
+            $table->foreignId('department_master_id')->constrained();
             $table->timestamps();
         });
     }

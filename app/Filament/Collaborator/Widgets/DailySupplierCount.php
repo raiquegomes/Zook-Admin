@@ -7,7 +7,7 @@ use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
 
 use Illuminate\Database\Eloquent\Builder;
-
+use Filament\Tables\Enums\ActionsPosition;
 use App\Models\AppointmentScheduling;
 
 use Illuminate\Support\Facades\Auth;
@@ -27,6 +27,13 @@ class DailySupplierCount extends BaseWidget
     protected static ?int $sort = 2;
     protected int | string | array $columnSpan = 'full';
 
+    public static function canView(): bool
+    {
+        $user = Auth::user();
+
+        return $user->departments->contains(fn($department) => $department->show_supplier_count);
+    }
+
     protected function getTableQuery(): Builder
     {
         // Filtrar os agendamentos do dia atual e pelos departamentos vinculados ao usuário logado
@@ -42,16 +49,21 @@ class DailySupplierCount extends BaseWidget
             ->with('supplier');
     }
 
+
     protected function getTableColumns(): array
     {
         return [
             Tables\Columns\TextColumn::make('supplier.name')
                 ->label('Fornecedor')
                 ->sortable()
-                ->searchable(),
+                ->searchable()
+                ->extraAttributes(['class' => 'break-words'])
+                ->wrap(), // Habilita quebra automática,
             Tables\Columns\TextColumn::make('scheduled_date')
                 ->label('Data do Agendamento')
                 ->date()
+                ->extraAttributes(['class' => 'break-words'])
+                ->wrap() // Habilita quebra automática
                 ->sortable(),
         ];
     }
@@ -89,7 +101,7 @@ class DailySupplierCount extends BaseWidget
                     ->requiresConfirmation()
                     ->color('success')
                     ->icon('heroicon-o-check'),
-            ])
+                ], position: ActionsPosition::BeforeColumns)
             ->heading('Fornecedores para Contagem do Dia');
     }
 }

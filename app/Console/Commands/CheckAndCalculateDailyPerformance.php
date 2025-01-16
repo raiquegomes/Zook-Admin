@@ -11,6 +11,7 @@ use App\Models\UserActivity;
 use App\Models\Performance;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use Filament\Facades\Filament;
 
 class CheckAndCalculateDailyPerformance extends Command
 {
@@ -115,8 +116,9 @@ class CheckAndCalculateDailyPerformance extends Command
 
                 if ($totalActivities > 0) {
                     $completionPercentage = ($completedActivities / $totalActivities) * 100;
-
+                    $enterprise = Filament::getTenant();
                     Performance::create([
+                        'enterprise_id' => $enterprise->id,
                         'user_id' => $user->id,
                         'date' => $today,
                         'completion_percentage' => $completionPercentage,

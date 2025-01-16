@@ -3,7 +3,12 @@
 namespace App\Filament\Enterprise\Widgets;
 
 use Filament\Widgets\Widget;
+use App\Models\Performance;
 use App\Models\User;
+use App\Models\Enterprise;
+use Illuminate\Support\Facades\Auth;
+use Filament\Facades\Filament;
+use Carbon\Carbon;
 
 class FunctionsUserActivity extends Widget
 {
@@ -30,17 +35,62 @@ class FunctionsUserActivity extends Widget
             'endDate' => 'required|date|after_or_equal:startDate',
         ]);
 
-        // Obtenha os usuários e some as porcentagens do modelo Performance
-        $this->usuarios = User::with(['performances' => function ($query) {
-            $query->whereBetween('date', [$this->startDate, $this->endDate]); // Ajuste o campo de data conforme necessário
-        }])->get()->map(function ($user) {
-            $totalPorcentagem = $user->performances->sum('completion_percentage'); // Substitua 'percentage' pelo nome correto do campo no modelo Performance
+        $start = Carbon::parse($this->startDate);
+        $end = Carbon::parse($this->endDate);
+
+        $enterprise = Filament::getTenant();
+
+        // Recupera os usuários ativos vinculados à empresa
+        $users = $enterprise->members()
+            ->where('is_active', true)
+            ->with('departments')
+            ->get();
+
+        $this->usuarios = $users->map(function ($user) use ($start, $end) {
+            $departments = $user->departments;
+
+            $totalCompletionPercentage = 0;
+            $performanceCount = 0;
+
+            foreach ($departments as $department) {
+                $officeDays = $this->calculateOfficeDays($department, $start, $end);
+
+                $totalCompletionPercentage += Performance::where('user_id', $user->id)
+                    ->whereBetween('date', [$start, $end])
+                    ->sum('completion_percentage');
+
+                $performanceCount += Performance::where('user_id', $user->id)
+                    ->whereBetween('date', [$start, $end])
+                    ->count();
+            }
+
+            $averageCompletionPercentage = $performanceCount > 0
+                ? $totalCompletionPercentage / $performanceCount
+                : 0;
 
             return [
                 'name' => $user->name,
-                'total_percentage' => $totalPorcentagem,
+                'average_percentage' => round($averageCompletionPercentage, 2),
             ];
         })->toArray();
     }
+
+    /**
+     * Calcula quantos dias o departamento teve expediente no intervalo de datas.
+     */
+    protected function calculateOfficeDays($department, Carbon $start, Carbon $end)
+    {
+        $workDays = $department->work_days;
+        $officeDays = 0;
+
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            if (in_array($date->format('l'), $workDays)) {
+                $officeDays++;
+            }
+        }
+
+        return $officeDays;
+    }
+
 
 }

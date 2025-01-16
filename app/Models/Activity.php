@@ -15,7 +15,7 @@ class Activity extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'frequency', 'specific_day', 'enterprise_id', 'order_number', 'status'];
+    protected $fillable = ['title', 'description', 'frequency', 'specific_day', 'enterprise_id', 'order_number', 'status', 'is_monitored'];
     protected $casts = [
         'status' => ActivityStatus::class,
     ];

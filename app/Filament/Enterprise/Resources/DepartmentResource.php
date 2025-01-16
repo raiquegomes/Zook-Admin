@@ -14,6 +14,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Fieldset;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -31,7 +32,7 @@ class DepartmentResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')->label('Nome')->required(),
-                Forms\Components\TextInput::make('office_day')->label('Dias de Trabalho')->required(),
+                Forms\Components\TextInput::make('office_day')->label('Dias de Trabalho'),
                 Forms\Components\CheckboxList::make('work_days')
                     ->label('Dias Trabalhados')
                     ->options([
@@ -43,10 +44,6 @@ class DepartmentResource extends Resource
                         'Saturday' => 'Sabado',
                         'Sunday' => 'Domingo',
                     ])->required(),
-                Forms\Components\Toggle::make('is_scale')
-                ->label('Departamento em Escala')
-                ->required(),
-
                 // Campo para inserir as datas de folga
                 Forms\Components\TextInput::make('holidays')
                 ->label('Datas de Folga (YYYY-MM-DD)')
@@ -64,6 +61,30 @@ class DepartmentResource extends Resource
                         $query->where('enterprise_id', $currentEnterprise->id);
                     });
                 }),
+                Forms\Components\Select::make('department_master_id')
+                ->label('Departamento Chefe')
+                ->relationship(
+                    name: 'parentDepartment',
+                    titleAttribute: 'name',
+                    modifyQueryUsing: fn (Builder $query) => $query->where('enterprise_id', Filament::getTenant()->id),
+                ),
+                Fieldset::make('Funções')
+                ->schema([
+                    Forms\Components\Toggle::make('is_scale')
+                    ->label('Departamento em Escala')
+                    ->required(),
+                ])
+                ->columns(3),
+                Fieldset::make('Widgets')
+                ->schema([
+                    Forms\Components\Toggle::make('show_notice_board')
+                    ->label('Exibir Mural de Avisos')
+                    ->default(false),
+                    Forms\Components\Toggle::make('show_supplier_count')
+                    ->label('Exibir Contagem de Fornecedores Diária')
+                    ->default(false),
+                ])
+                ->columns(3),
             ]);
     }
 
@@ -102,8 +123,6 @@ class DepartmentResource extends Resource
     {
         return [
             'index' => Pages\ListDepartments::route('/'),
-            'create' => Pages\CreateDepartment::route('/create'),
-            'edit' => Pages\EditDepartment::route('/{record}/edit'),
         ];
     }
 }

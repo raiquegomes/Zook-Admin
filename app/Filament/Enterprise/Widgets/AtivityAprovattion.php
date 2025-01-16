@@ -25,6 +25,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Placeholder;
 
 use Filament\Notifications\Notification;
 
@@ -51,7 +52,9 @@ class AtivityAprovattion extends BaseWidget
                 Tables\Columns\TextColumn::make('activity.title')
                     ->label('Atividade')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->extraAttributes(['class' => 'break-words'])
+                    ->wrap(), // Habilita quebra automática,
                 Tables\Columns\TextColumn::make('assigned_date')
                     ->label('Data Atribuída')
                     ->date('d/m/Y')
@@ -74,6 +77,8 @@ class AtivityAprovattion extends BaseWidget
                     ->options([
                         'concluido' => 'Concluido',
                         'nao_concluido' => 'Não Concluido',
+                        'em_analise' => 'Em Analise',
+                        'nao_aprovado' => 'Não Aprovado',
                     ])
                     ->searchable(),
 
@@ -87,34 +92,45 @@ class AtivityAprovattion extends BaseWidget
                         Step::make('Supervisor')
                             ->description('Informações pessoais')
                             ->schema([
-                                TextInput::make('Nome do Supervisor')
-                                    ->default(auth()->user()->name)
-                                    ->required()
-                                    ->readonly(),
+                                Placeholder::make('user_id')
+                                ->label('O nome do supervisor(a)')
+                                ->content(auth()->user()->name),
 
-                                TextInput::make('id')
-                                    ->label('Seu ID')
-                                    ->default(auth()->user()->id)
-                                    ->readonly()
-                                    ->required(),
+                                Placeholder::make('id')
+                                ->label('Seu ID')
+                                ->content(auth()->user()->id),
                             ])
                             ->columns(2),
                         Step::make('Impacto e Reprovação')
                             ->description('Ações Humanizadas')
                             ->schema([
-                                Textarea::make('name')
-                                ->default('A reprovação de uma atividade pode gerar consequências diretas para o colaborador,
+                                Placeholder::make('description')
+                                ->label('Informações sobre a atividade')
+                                ->content('A reprovação de uma atividade pode gerar consequências diretas para o colaborador,
                                 como perda de tempo na correção de tarefas e possível impacto financeiro, reduzindo seu desempenho e remuneração. Antes de reprovar, certifique-se de que todas as orientações foram claras e ofereça sugestões de melhoria. A decisão de reprovar deve ser tomada com cuidado, pois pode afetar a motivação e a eficiência do colaborador a longo prazo.'),
                             ]),
-                        Step::make('Imagem')
+                        Step::make('Informações da Atividade')
                             ->description('Visualização')
                             ->schema([
 
-                            ]),
-                        Step::make('Description')
-                            ->description('Add some extra details')
-                            ->schema([
-                                MarkdownEditor::make('description'),
+                                Placeholder::make('activity.title')
+                                ->label('Titulo')
+                                ->content(fn ($record) => $record->activity->title ?? 'Sem título'),
+
+                                Placeholder::make('observation')
+                                ->label('Observação')
+                                ->content(fn ($record) => $record->observation ?? 'Sem observação'),
+
+                                FileUpload::make('attachments')
+                                ->label('Imagens Enviadas')
+                                ->multiple()
+                                ->directory('atividades') // Direciona para o diretório correto
+                                ->visibility('public') // Garante a acessibilidade
+                                ->disabled() // Impede alterações no campo
+                                ->preserveFilenames() // Exibe os nomes originais dos arquivos
+                                ->default(fn ($record) => $record->attachments ?? [])
+                                ->openable()
+                                ->panelLayout('grid'),
                             ]),
                     ])
             ]);

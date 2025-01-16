@@ -19,6 +19,7 @@ return new class extends Migration
             $table->json('holidays')->nullable();
             $table->integer('office_day');
             $table->foreignId('enterprise_id')->constrained('enterprises')->nullable();
+            $table->foreignId('department_master_id')->constrained();
             $table->timestamps();
             $table->softDeletes();
         });

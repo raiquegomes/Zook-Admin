@@ -86,6 +86,12 @@ class ActivityResource extends Resource
                     Toggle::make('status')->label('Status da Atividade')->inline(false)->default(true)->required(),
                     TextInput::make('order_number')->label('N° (Ordem)')->numeric()->required()
                 ]),
+            Fieldset::make('Monitoramento')
+                ->schema([
+                    Toggle::make('is_monitored')
+                        ->label('Monitorado')
+                        ->default(false),
+                ]),
         ]);
     }
 
@@ -130,9 +136,86 @@ class ActivityResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+
                 ]),
                 ExportBulkAction::make()->exporter(ActivityExporter::class)->label('Exportar Atividades'),
+                Tables\Actions\BulkAction::make('alterarColunas')
+                ->label('Alterar Colunas')
+                ->form([
+                    // Checkbox e campo de valor para "Departamento"
+                    Forms\Components\Checkbox::make('colunas.departments')
+                        ->label('Departamento')
+                        ->reactive(),
+
+                    Forms\Components\BelongsToManyMultiSelect::make('valores.departments')
+                    ->label('Novo valor para Departamento')
+                    ->relationship(
+                        name: 'departments',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query) => $query->whereBelongsTo(Filament::getTenant()),
+                    )
+                    ->visible(fn (Get $get) => $get('colunas.departments')),
+
+                    // Checkbox e campo de valor para "Frequência"
+                    Forms\Components\Checkbox::make('colunas.frequency')
+                        ->label('Frequência')
+                        ->reactive(),
+                        Forms\Components\Select::make('valores.frequency')
+                        ->label('Novo valor para Frequência')
+                        ->options([
+                            'daily' => 'Diária',
+                            'specific_day' => 'Dia específico',
+                            '5th_working_day' => '5º Dia Útil',
+                            'weekly' => 'Semanalmente',
+                            'monthly' => 'Mensal',
+                        ])
+                        ->reactive() // Garante que mudanças na seleção sejam capturadas
+                        ->required(fn (Get $get) => $get('colunas.frequency'))
+                        ->visible(fn (Get $get) => $get('colunas.frequency')),
+
+                    // Checkbox e campo de valor para "Monitorado"
+                    Forms\Components\Checkbox::make('colunas.is_monitored')
+                        ->label('Monitorado')
+                        ->reactive(),
+                    Forms\Components\Toggle::make('valores.is_monitored')
+                        ->label('Novo valor para Monitorado')
+                        ->visible(fn (Get $get) => $get('colunas.is_monitored')),
+
+                    Forms\Components\Checkbox::make('colunas.status')
+                        ->label('Status')
+                        ->reactive(),
+                    Forms\Components\Toggle::make('valores.status')
+                        ->label('Novo valor para Status')
+                        ->visible(fn (Get $get) => $get('colunas.status')),
+                ])
+                ->action(function (array $data, \Illuminate\Database\Eloquent\Collection $records) {
+                    foreach ($records as $record) {
+                        $updates = [];
+
+                        foreach ($data['colunas'] ?? [] as $column => $selected) {
+                            if ($selected && isset($data['valores'][$column])) {
+                                $updates[$column] = $data['valores'][$column];
+                            }
+                        }
+
+                        // Tratamento especial para o relacionamento de departamentos
+                        if (isset($updates['departments'])) {
+                            $departmentIds = array_filter($updates['departments']); // Filtra apenas IDs válidos
+                            if (!empty($departmentIds)) {
+                                $record->load('departments'); // Garante que o relacionamento esteja carregado
+                                $record->departments()->sync($departmentIds);
+                            }
+                            unset($updates['departments']); // Remove para evitar conflito com o update
+                        }
+
+                        // Atualiza os campos restantes no registro
+                        if (!empty($updates)) {
+                            $record->update($updates);
+                        }
+                    }
+                })
+                ->requiresConfirmation()
+                ->icon('heroicon-m-pencil-square'),
             ]);
     }
 

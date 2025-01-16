@@ -46,7 +46,7 @@ class EnterprisePanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Enterprise/Resources'), for: 'App\\Filament\\Enterprise\\Resources')
             ->discoverPages(in: app_path('Filament/Enterprise/Pages'), for: 'App\\Filament\\Enterprise\\Pages')
             ->pages([
-
+                Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Enterprise/Widgets'), for: 'App\\Filament\\Enterprise\\Widgets')
             ->widgets([

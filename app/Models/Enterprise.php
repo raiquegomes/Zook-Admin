@@ -46,4 +46,19 @@ class Enterprise extends Model
         return $this->hasMany(Supplier::class);
     }
 
+    public function performances(): HasMany
+    {
+        return $this->hasMany(Performance::class);
+    }
+
+    public function canceledCouponClosings()
+    {
+        return $this->hasMany(CanceledCouponClosing::class);
+    }
+
+    public function stockCounts()
+    {
+        return $this->hasMany(StockCount::class);
+    }
+
 }

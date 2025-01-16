@@ -6,7 +6,7 @@ use App\Enums\UserActivityUser;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class UserActivity extends Model
 {
     use HasFactory;
@@ -16,10 +16,15 @@ class UserActivity extends Model
         'activity_id',
         'assigned_date',
         'status',
+        'attachments',
+        'observation',
+        'observation_reject',
+        'department_master_id'
     ];
 
     protected $casts = [
         'status' => UserActivityUser::class,
+        'attachments' => 'array',
     ];
 
     public function files()
@@ -35,5 +40,10 @@ class UserActivity extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function departmentMaster()
+    {
+        return $this->belongsTo(Departament::class, 'department_master_id');
     }
 }

@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->integer('stock');
+            $table->decimal('price', 10, 2)->default(0.00);
+            $table->boolean('is_visible')->default(false); // Controla a visibilidade
+            $table->foreignId('category_id')->constrained()->onDelete('cascade'); // Relacionamento com categoria
             $table->foreignId('enterprise_id')->constrained()->nullable();
             $table->timestamps();
         });
